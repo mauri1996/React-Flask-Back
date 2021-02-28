@@ -28,53 +28,71 @@ def consulta1():
 
 @app.route('/consulta2' , methods = ['GET'])
 def consulta2():
-    #anio = '1987'
-    anio = request.args.get('anio')
-    df = pd.read_csv('./source/consulta2_.csv/part-00000-0d685a34-50ce-44b6-82a2-c70f3869bdba-c000.csv', header=0 , sep=',')
-    df = df.sort_values('Year')
-    df.set_index('Year' , inplace=True)
-    df1 = df.loc[anio , ['UniqueCarrier', 'count']]
-    print(df1)
-    datos = []
-    for registro in df1.itertuples():
-        dicDatos = {'aerolinea' : registro.UniqueCarrier , 'retraso' : registro.count}
-        datos.append(dicDatos)
-        dicdatos = {}
-    dicJson = {anio : datos}
-    return json.dumps(dicJson)
+	anio = request.args.get('anio')
+	df = pd.read_csv('./source/consulta2_.csv/part-00000-0d685a34-50ce-44b6-82a2-c70f3869bdba-c000.csv', header=0 , sep=',')
+	df = df.sort_values('Year')
+	df.set_index('Year' , inplace=True)
+	df1 = df.loc[anio , ['UniqueCarrier', 'count']]
+	datos = []
+	if (isinstance(df1, pd.core.series.Series)):
+		#print(type(df1.count()))    
+		dicDatos = {'aerolinea' : df1.UniqueCarrier , 'retraso' : df1.count().astype('str')}
+		datos.append(dicDatos)
+		dicJson = {anio : datos}
+	else:
+		#print ('no es serie')		
+		for registro in df1.itertuples():        
+			dicDatos = {'aerolinea' : registro.UniqueCarrier , 'retraso' : registro.count}
+			datos.append(dicDatos)
+			dicdatos = {}
+		dicJson = {anio : datos}
+
+	return json.dumps(dicJson)
 
 
 @app.route('/consulta4' , methods = ['GET'])
 def consulta4():
     #anio = '1987'
-    anio = request.args.get('anio')
-    df = pd.read_csv('./source/consulta4_.csv/part-00000-8e04c36e-aa83-40d0-b8d7-fb17318ffbec-c000.csv', header=0 , sep=',')
-    df = df.sort_values('Year')
-    df.set_index('Year' , inplace=True)
-    df1 = df.loc[anio , ['Month', 'UniqueCarrier' , 'count']]
-    datos = []
-    for registro in df1.itertuples():
-        dicDatos = {'mes' : registro.Month , 'aerolinea' : registro.UniqueCarrier , 'retrasos' : registro.count}
-        datos.append(dicDatos)
-        dicdatos = {}
-    dicJson = {anio : datos}
-    return json.dumps(dicJson)
+	anio = request.args.get('anio')
+	df = pd.read_csv('./source/consulta4_.csv/part-00000-8e04c36e-aa83-40d0-b8d7-fb17318ffbec-c000.csv', header=0 , sep=',')
+	df = df.sort_values('Year')
+	df.set_index('Year' , inplace=True)
+	df1 = df.loc[anio , ['Month', 'UniqueCarrier' , 'count']]
+	datos = []
+	if (isinstance(df1, pd.core.series.Series)):
+		#print(type(df1.count()))    
+		dicDatos = {'mes' : df1.Month.astype('str') , 'aerolinea' : df1.UniqueCarrier , 'retrasos' : df1.count().astype('str')}
+		datos.append(dicDatos)
+		dicJson = {anio : datos}	
+	else:
+		for registro in df1.itertuples():
+			dicDatos = {'mes' : registro.Month , 'aerolinea' : registro.UniqueCarrier , 'retrasos' : registro.count}
+			datos.append(dicDatos)
+			dicdatos = {}
+		dicJson = {anio : datos}
+	return json.dumps(dicJson)
+
 
 @app.route('/consulta5' , methods = ['GET'])
 def consulta5():
-    #anio = '1987'
-    anio = request.args.get('anio')
-    df = pd.read_csv('./source/consulta5_.csv/part-00000-b9329e8a-0722-48ad-abe8-ca47bb48619e-c000.csv', header=0 , sep=',')
-    df = df.sort_values('Year')
-    df.set_index('Year' , inplace=True)
-    df1 = df.loc[anio , [ 'UniqueCarrier', 'Origin' , 'Dest' , 'count']]
-    datos = []
-    for registro in df1.itertuples():
-        dicDatos = {'origen': registro.Origin, 'destino':registro.Dest , 'aerolinea':registro.UniqueCarrier , 'vuelos' : registro.count}
-        datos.append(dicDatos)
-        dicdatos = {}
-    dicJson = {anio : datos}
-    return json.dumps(dicJson)
+	anio = request.args.get('anio')
+	df = pd.read_csv('./source/consulta5_.csv/part-00000-b9329e8a-0722-48ad-abe8-ca47bb48619e-c000.csv', header=0 , sep=',')
+	df = df.sort_values('Year')
+	df.set_index('Year' , inplace=True)
+	df1 = df.loc[anio , [ 'UniqueCarrier', 'Origin' , 'Dest' , 'count']]
+	datos = []
+	if (isinstance(df1, pd.core.series.Series)):
+		#print(type(df1.count()))    
+		dicDatos = {'origen': df1.Origin, 'destino': df1.Dest , 'aerolinea': df1.UniqueCarrier , 'vuelos' : df1.count().astype('str')}
+		datos.append(dicDatos)
+		dicJson = {anio : datos}
+	else:
+		for registro in df1.itertuples():
+			dicDatos = {'origen': registro.Origin, 'destino':registro.Dest , 'aerolinea':registro.UniqueCarrier , 'vuelos' : registro.count}
+			datos.append(dicDatos)
+			dicdatos = {}
+		dicJson = {anio : datos}
+	return json.dumps(dicJson)
 
 
 if __name__ == '__main__':
