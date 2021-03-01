@@ -3,6 +3,8 @@ from pyspark import SparkConf
 #import pandas as pd
 from pyspark.sql import functions as F
 import time
+from os import path
+import shutil
 import os 
 
 # Contamos el tiempo que dura la ejecucion del programa 
@@ -10,7 +12,7 @@ start_time = time.time()
 
 # Ubicacion del conjunto de datos 
 logFile = "./data.csv"  # CSV con los datos 
-ipMaster = "spark://192.168.2.107:7077"
+ipMaster = "spark://192.168.2.104:7077"
 
 # SparkConf -> Establecer la configuracion inicial para que Ejecutar Spark Cluster 
 # setAppName -> Nombre de la aplicacion 
@@ -41,6 +43,10 @@ dfConsulta1 = dfConsulta1.groupBy( 'Year' , 'UniqueCarrier','Origin' , 'Dest').c
 
 #Guarda la informacion en un archivo llamado consulta5_.csv
 path_master = './consulta5_.csv/'
+if (path.exists(path_master)):
+    shutil.rmtree(path_master, ignore_errors=True)
+else:
+    pass
 dfConsulta1.repartition(1).write.format('com.databricks.spark.csv').save(path_master,header = 'true')
 csv = [x for x in os.listdir(path_master) if x.endswith(".csv")]
 os.rename(path_master+csv[0], path_master+"resultado5.csv")
