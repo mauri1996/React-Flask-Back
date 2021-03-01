@@ -1,22 +1,22 @@
 from pyspark.sql import SparkSession
 from pyspark import SparkConf
-import pandas as pd
+#import pandas as pd
 from pyspark.sql import functions as F
 import time
-
+import os 
 
 # Contamos el tiempo que dura la ejecucion del programa 
 start_time = time.time()
 
 # Ubicacion del conjunto de datos 
 logFile = "./data.csv"  # CSV con los datos 
-ipMaster = "spark://192.168.0.108:7077"
+ipMaster = "spark://192.168.2.107:7077"
 
-# SparkConf -> Establecer la configuracion inicial para que Ejecutar Spark Clúster 
+# SparkConf -> Establecer la configuracion inicial para que Ejecutar Spark Cluster 
 # setAppName -> Nombre de la aplicacion 
-# spark.shuffle.service.enabled -> Habilita el servicio de reproducción aleatoria externa. ( false )
-# spark.dynamicAllocation.enabled ->  Asignación dinámica de recursos ( false )
-# spark.cores.max -> Cantidad máxima de núcleos de CPU para solicitar la aplicación de todo el clúster
+# spark.shuffle.service.enabled -> Habilita el servicio de reproduccion aleatoria externa. ( false )
+# spark.dynamicAllocation.enabled ->  Asignacion dinamica de recursos ( false )
+# spark.cores.max -> Cantidad maxima de nucleos de CPU para solicitar la aplicacion de todo el cluster
 # spark.executor.memory -> Cantidad de memoria a usar por proceso ejecutor,
 
 conf = SparkConf().setAppName("Proyecto Final Big Data").set("spark.shuffle.service.enabled", "false").set("spark.dynamicAllocation.enabled", "false").set("spark.cores.max", "4").set("spark.executor.memory", "1g");
@@ -27,7 +27,7 @@ spark = SparkSession.builder.master(ipMaster).config(conf=conf).getOrCreate()
 # Lecturas de los datos 
 df = spark.read.csv(logFile, header=True)
 
-# dfConsulta1 -> Número de retrasos de salida y de llegada (ArrDelay, DepDelay) por ruta
+# dfConsulta1 -> Numero de retrasos de salida y de llegada (ArrDelay, DepDelay) por ruta
 dfConsulta1 = df.select(df['Year'] , df['Origin'] , df['Dest'] , df['UniqueCarrier'])
 
 # Agregamos la columna retrasos, la cual sera la suma de ArrDelay y DepDelay
@@ -40,7 +40,10 @@ dfConsulta1 = df.select(df['Year'] , df['Origin'] , df['Dest'] , df['UniqueCarri
 dfConsulta1 = dfConsulta1.groupBy( 'Year' , 'UniqueCarrier','Origin' , 'Dest').count()
 
 #Guarda la informacion en un archivo llamado consulta5_.csv
-dfConsulta1.repartition(1).write.format('com.databricks.spark.csv').save("./consulta5_.csv",header = 'true')
+path_master = './consulta5_.csv/'
+dfConsulta1.repartition(1).write.format('com.databricks.spark.csv').save(path_master,header = 'true')
+csv = [x for x in os.listdir(path_master) if x.endswith(".csv")]
+os.rename(path_master+csv[0], path_master+"resultado5.csv")
 
 print("--- %s seconds ---" % (time.time() - start_time))
 print()
